@@ -55,12 +55,14 @@ def Game(red=human.Strategy, black=tonto.Strategy,
     black = black('b', checkerboard.CheckerBoard, maxplies)
     red = red('r',checkerboard.CheckerBoard, maxplies)
 
+    print("Welcome to the wonderous world of checkers:")
+
     while(True):
-        print("Your Turn:")
+        print("R Turn:")
         print(init)
         init, action = red.play(board=init)
 
-        print("AI's Turn:")
+        print("B Turn:")
         print(init)
         init, action = black.play(board=init)
 
