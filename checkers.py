@@ -28,14 +28,15 @@ tonto = imp.load_compiled("tonto", modpath)
 
 # human - human player, prompts for input    
 import human
+import ai
 
 import boardlibrary # might be useful for debugging
 
 from timer import Timer
         
 
-def Game(red=human.Strategy, black=tonto.Strategy, 
-         maxplies=10, init=None, verbose=True, firstmove=0):
+def Game(red=ai.Strategy, black=tonto.Strategy,
+         maxplies=3, init=None, verbose=True, firstmove=0):
     """Game(red, black, maxplies, init, verbose, turn)
     Start a game of checkers
     red,black - Strategy classes (not instances)
@@ -55,21 +56,51 @@ def Game(red=human.Strategy, black=tonto.Strategy,
     black = black('b', checkerboard.CheckerBoard, maxplies)
     red = red('r',checkerboard.CheckerBoard, maxplies)
 
-    print("Welcome to the wonderous world of checkers:")
+    print("Welcome to the wonderous world of checkers!")
 
-    while(True):
-        print("R Turn:")
-        print(init)
-        init, action = red.play(board=init)
+    done = False
+    move = 1
 
-        print("B Turn:")
-        print(init)
-        init, action = black.play(board=init)
+    while(not done):
+        #* Check for winner
+        if gameOver(init): break
 
-        #* Check for winnder
-        isTerm, winner = init.is_terminal()
-        if (isTerm):
-            print(winner,"is the winner!")
+        #* R's Turn
+        if verbose:
+            print("\nR Turn:")
+            print(init)
+        init, action = red.play(board=init)     #make move
+        move += 1
+        if verbose:
+            print(init.get_action_str(action))
+            print(init)
+
+        #* Check for winner
+        if gameOver(init): break
+
+        #* B's Turn
+        if verbose:
+            print("\nB Turn:")
+            print(init)
+        init, action = black.play(board=init)   #make move
+        move += 1
+        if verbose:
+            print(init.get_action_str(action))
+            print(init)
+
+def gameOver(board):
+    done, winner = board.is_terminal()
+    if done:
+        #game over
+        if winner == None:
+            print("It's a draw!")
+            return True
+        else:
+            print(winner, "is the winner!")
+            return True
+    return False #game not over
+
+
     
             
 if __name__ == "__main__":
