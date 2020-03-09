@@ -20,6 +20,8 @@ import checkerboard
 # and 3.8.  If you're not using one of these, it won't work.
 import imp
 import sys
+from statistics import mean
+import timer
 major = sys.version_info[0]
 minor = sys.version_info[1]
 modpath = "__pycache__/tonto.cpython-{}{}.pyc".format(major, minor)
@@ -29,6 +31,7 @@ tonto = imp.load_compiled("tonto", modpath)
 # human - human player, prompts for input    
 import human
 import ai
+import minimax
 
 import boardlibrary # might be useful for debugging
 
@@ -36,7 +39,7 @@ from timer import Timer
         
 
 def Game(red=ai.Strategy, black=tonto.Strategy,
-         maxplies=3, init=None, verbose=True, firstmove=0):
+         maxplies=10, init=None, verbose=True, firstmove=0):
     """Game(red, black, maxplies, init, verbose, turn)
     Start a game of checkers
     red,black - Strategy classes (not instances)
@@ -57,47 +60,59 @@ def Game(red=ai.Strategy, black=tonto.Strategy,
     red = red('r',checkerboard.CheckerBoard, maxplies)
 
     print("Welcome to the wonderous world of checkers!")
+    gameTime = Timer()
 
     done = False
     move = 1
+    rMoveTimeList = []
+    bMoveTimeList = []
 
     while(not done):
         #* Check for winner
-        if gameOver(init): break
+        if gameOver(init, rMoveTimeList, bMoveTimeList): break
 
         #* R's Turn
         if verbose:
             print("\nR Turn:")
             print(init)
-        init, action = red.play(board=init)     #make move
+        moveTime = Timer()
+        init, action = red.play(board=init)         #make move
+        rMoveTimeList.append(moveTime.elapsed_s())  # create a list of move times
         move += 1
         if verbose:
-            print(init.get_action_str(action))
+            print("move",move,"by r:",init.get_action_str(action), " Result:")
             print(init)
+            print("Time - move:", round(rMoveTimeList[-1],2),"s, game:", round(gameTime.elapsed_min(),2),"min")
 
         #* Check for winner
-        if gameOver(init): break
+        if gameOver(init, rMoveTimeList, bMoveTimeList): break
 
         #* B's Turn
         if verbose:
             print("\nB Turn:")
             print(init)
-        init, action = black.play(board=init)   #make move
+        moveTime = Timer()
+        init, action = black.play(board=init)       #make move
+        bMoveTimeList.append(moveTime.elapsed_s())  #add move time to list
         move += 1
         if verbose:
-            print(init.get_action_str(action))
+            print("move",move,"by b:", init.get_action_str(action), " Result:")
             print(init)
+            print("Time - move:", round(bMoveTimeList[-1], 2), "s, game:", round(gameTime.elapsed_min(), 2), "min")
 
-def gameOver(board):
+def gameOver(board, rmoveTimes, bmoveTimes):
     done, winner = board.is_terminal()
     if done:
         #game over
+        print("\nFinal Board")
+        print(board)
         if winner == None:
             print("It's a draw!")
-            return True
         else:
             print(winner, "is the winner!")
-            return True
+        print("r Average move time:", mean(rmoveTimes), "seconds")
+        print("b Average move time:", mean(bmoveTimes), "seconds")
+        return True
     return False #game not over
 
 

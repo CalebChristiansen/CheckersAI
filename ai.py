@@ -35,38 +35,56 @@ class Strategy(abstractstrategy.Strategy):
         pruning).
         """
 
-        util, bestAction = self.miniMax(board, self.maxplies, True)
+        print(self.maxplayer, "thinking using tonto 2.0 strategy...")
+        util, bestAction = self.miniMax(board, self.maxplies, float("-inf"), float("inf"), True)
 
         board = board.move(bestAction)
 
         return (board, bestAction)
 
-    def miniMax(self, board, depth, maxingPlayer):
-        done, winner = board.is_terminal()
-        if depth == 0 or done:
-            return [self.utility(board), [(0,0), (0,0)]]
 
-        if maxingPlayer:
-            maxAction = None
+    def miniMax(self, board, depth, alpha, beta, maxingPlayer):
+        """
+        find the best path/action for either the maxplayer (maxingPlayer = True) or minplayer (maxingPlayer = False)
+        uses recursion to compute best path
+        :param board: the checkerboard to explore
+        :param depth: # of turns to explore (default 10)
+        :param alpha: lower bound of possible values for utility
+        :param beta:  upper bound of possible values for utility
+        :param maxingPlayer: Boolean that tracks if utility is being either max-ed or min-ed
+        :return: [util, action] a list containing best util and action for a given player
+        """
+
+        done = board.is_terminal()[0]           #* [0] is the done element of return [done, winner]
+        if depth == 0 or done:
+            return [self.utility(board), None]  #* could return [(0,0),(0,0)]
+
+        if maxingPlayer:                        #* maxingPlayer is a boolean
+            maxAction = None                    #* maxAction is the best action of a given utility
             maxUtil = float("-inf")
             actions = board.get_actions(self.maxplayer)
-            for action in actions:
+            for action in actions:              #* iterates over all possible actions for this board
                 tempBoard = board.move(action)
-                util, prevAction = self.miniMax(tempBoard, depth-1, False)
+                util, prevAction = self.miniMax(tempBoard, depth-1, alpha, beta, False)
                 if util > maxUtil:
                     maxUtil = util
                     maxAction = action
+                #* alpha beta pruning
+                alpha = max(alpha, util)
+                if beta <= alpha: break         #* abandon ship!
             return [maxUtil, maxAction]
 
-        else:
+        else:                                   #* If maxingPlayer is False
             minAction = None
             minUtil = float("inf")
             actions = board.get_actions(self.minplayer)
             for action in actions:
                 tempBoard = board.move(action)
-                util, prevAction = self.miniMax(tempBoard, depth - 1, True)
+                util, prevAction = self.miniMax(tempBoard, depth - 1, alpha, beta, True)
                 if util < minUtil:
                     minUtil = util
                     minAction = action
+                beta = min(beta, util)
+                if beta <= alpha: break         #* abandon ship!
             return [minUtil, minAction]
 
