@@ -16,51 +16,10 @@ class Strategy(abstractstrategy.Strategy):
 
     def utility(self, board):
         "Return the utility of the specified board"
-        #get number of pawns and kings for each player
-        numPawnsR, numPawnsB = board.get_pawnsN()
-        numKingsR, numKingsB = board.get_kingsN()
+        numPawns = board.get_pawnsN()
+        numKings = board.get_kingsN()
 
-        #ourpices - oppoent's pieces
-        util =  numPawnsR - numPawnsB*2 + numKingsR*3 - numKingsB*3*2
-        util *= 3
-
-        #check for winning moves
-        done, winner = board.is_terminal()
-
-        #iterate over each piece on the board
-        for piece in board:
-            #each piece has properties (r, c, piece)
-            row = piece[0]
-            col = piece[1]
-            pieceType = piece[2]
-
-            #reward staying in the last row of your side
-            if pieceType == 'r' and row == 7:
-                util += 1
-
-            #reward hugging the sides of the board
-            if pieceType == 'r' and (col == 0 or col == 7):
-                util += 1
-
-            #punish opponent staying in last row
-            if pieceType == 'b' and row == 0:
-                util -= 1
-
-            #punish opponent hugging sides of board
-            if pieceType == 'b' and (col == 0 or col == 7):
-                util -= 1
-
-
-
-        if (done and winner == self.maxplayer):
-            util = 99999999999999
-            print("found winning board")
-            print(board)
-
-        if (done and winner == self.minplayer):
-            util = -99999999999999
-            print("found losing board")
-            print(board)
+        util =  numPawns[0]-numPawns[1]*2 + numKings[0] * 2-numKings[1] * 3
 
         #returns the util relative to the maxPlayer
         if (self.maxplayer == 'r'):
