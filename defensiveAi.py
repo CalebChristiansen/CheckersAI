@@ -16,27 +16,16 @@ class Strategy(abstractstrategy.Strategy):
 
     def utility(self, board):
         "Return the utility of the specified board"
-
-        # check for winning moves
-        done, winner = board.is_terminal()
-        if (done and winner == self.maxplayer):
-            return 99999999999999
-
-        if (done and winner == self.minplayer):
-            return -99999999999999
-
-        #this function is written with red as maxPlayer (us) it then negates the score at the
-        #end if the maxPlayer was actually black.
-
-
         #get number of pawns and kings for each player
         numPawnsR, numPawnsB = board.get_pawnsN()
         numKingsR, numKingsB = board.get_kingsN()
 
         #ourpices - oppoent's pieces
         util =  numPawnsR - numPawnsB*2 + numKingsR*3 - numKingsB*3*2
-        util *= 5 #we want to weight this as more important *3
+        util *= 3
 
+        #check for winning moves
+        done, winner = board.is_terminal()
 
         #iterate over each piece on the board
         for piece in board:
@@ -45,29 +34,33 @@ class Strategy(abstractstrategy.Strategy):
             col = piece[1]
             pieceType = piece[2]
 
-            #HomeRow Evaluation
-            # reward for staying in home row
+            #reward staying in the last row of your side
             if pieceType == 'r' and row == 7:
+                util += 1
 
-                util += 15
-            # punish opponent staying in last row
+            #reward hugging the sides of the board
+            if pieceType == 'r' and (col == 0 or col == 7):
+                util += 1
+
+            #punish opponent staying in last row
             if pieceType == 'b' and row == 0:
-                util -= 15
+                util -= 1
 
-            #Closeness to KingMe!
-            #red should try to be in row 0
-            if pieceType == 'r':
-                util += (7 - row)
-            #black should be in 7
-            if pieceType == 'b':
-                util -= row
-
-            #prefer double corner kingme
-            if pieceType == 'r' and row <= 2 and col <= 3:
-                util += 20
+            #punish opponent hugging sides of board
+            if pieceType == 'b' and (col == 0 or col == 7):
+                util -= 1
 
 
 
+        if (done and winner == self.maxplayer):
+            util = 99999999999999
+            print("found winning board")
+            print(board)
+
+        if (done and winner == self.minplayer):
+            util = -99999999999999
+            print("found losing board")
+            print(board)
 
         #returns the util relative to the maxPlayer
         if (self.maxplayer == 'r'):
