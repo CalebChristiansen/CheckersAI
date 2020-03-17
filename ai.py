@@ -35,7 +35,7 @@ class Strategy(abstractstrategy.Strategy):
 
         #ourpices - oppoent's pieces
         util =  numPawnsR - numPawnsB*2 + numKingsR*3 - numKingsB*3*2
-        util *= 5 #we want to weight this as more important *3
+        util *= 5 #we want to weight this as more important
 
 
         #iterate over each piece on the board
@@ -48,7 +48,6 @@ class Strategy(abstractstrategy.Strategy):
             #HomeRow Evaluation
             # reward for staying in home row
             if pieceType == 'r' and row == 7:
-
                 util += 15
             # punish opponent staying in last row
             if pieceType == 'b' and row == 0:
@@ -62,18 +61,16 @@ class Strategy(abstractstrategy.Strategy):
             if pieceType == 'b':
                 util -= row
 
-            #prefer double corner kingme
-            if pieceType == 'r' and row <= 2 and col <= 3:
-                util += 20
-
-
-
+            ##prefer double corner kingme
+            #if pieceType == 'r' and row <= 2 and col <= 3:
+            #    util += 20
 
         #returns the util relative to the maxPlayer
         if (self.maxplayer == 'r'):
             return util
         else:
             return -util
+
 
     def play(self, board):
         """"play - Make a move
@@ -84,7 +81,7 @@ class Strategy(abstractstrategy.Strategy):
         """
 
         print(self.maxplayer, "thinking using tonto 2.0 strategy...")
-        util, bestAction = self.miniMax(board, self.maxplies, float("-inf"), float("inf"), True)
+        util, bestAction = self.miniMax(board, self.maxplies, float("-inf"), float("inf"), True) #maxingPlayer = True
 
         board = board.move(bestAction)
 
@@ -116,7 +113,7 @@ class Strategy(abstractstrategy.Strategy):
                 util, prevAction = self.miniMax(tempBoard, depth-1, alpha, beta, False)
                 if util > maxUtil:
                     maxUtil = util
-                    maxAction = action
+                    maxAction = action          #* New favorite action
                 #* alpha beta pruning
                 alpha = max(alpha, util)
                 if beta <= alpha: break         #* abandon ship!

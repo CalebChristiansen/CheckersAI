@@ -1,5 +1,5 @@
 '''
-@author: mroch
+@author: caleb & sharai
 '''
 
 # Game representation and mechanics
@@ -62,12 +62,11 @@ def Game(red=ai.Strategy, black=tonto.Strategy,
     print("Welcome to the wonderous world of checkers!")
     gameTime = Timer()
 
-    done = False
     move = 1
     rMoveTimeList = []
     bMoveTimeList = []
 
-    while(not done):
+    while(True):
         #* Check for winner
         if gameOver(init, rMoveTimeList, bMoveTimeList): break
 
